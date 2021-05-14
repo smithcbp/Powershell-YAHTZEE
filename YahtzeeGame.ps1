@@ -1,5 +1,4 @@
-﻿#requires -version 5
-<#
+﻿<#
 .SYNOPSIS
   Enjoy an exciting game of Yahtzee!
 .DESCRIPTION

@@ -5,7 +5,7 @@
   Kicks off a game of Yahtzee completely in the console. Currently single player only.
 .NOTES
   Version:        1.0
-  Author:         Chris Smith https://github.com/smithcbp
+  Author:         Chris Smith (smithcbp on github)
   Creation Date:  5/14/2021
 .EXAMPLE
   Just run YahtzeeGame.ps1 and have fun :)

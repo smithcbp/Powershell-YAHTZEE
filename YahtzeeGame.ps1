@@ -1,9 +1,9 @@
 ﻿#requires -version 5
 <#
 .SYNOPSIS
-  Enjoy an exciting game of YAHTZEE!
+  Enjoy an exciting game of Yahtzee!
 .DESCRIPTION
-  Kicks off a game of YAHTZEE completely in the console. Currently single player only.
+  Kicks off a game of Yahtzee completely in the console. Currently single player only.
 .NOTES
   Version:        1.0
   Author:         Chris Smith https://github.com/smithcbp
@@ -11,7 +11,7 @@
   Purpose/Change: Initial script development
   
 .EXAMPLE
-  Just run Start-YAHTZEE.ps1 and have fun :)
+  Just run YahtzeeGame.ps1 and have fun :)
 #>
 
 #Console Menu Selection Function
@@ -86,7 +86,7 @@ $ScoreNameArray = @(
   'FullHouse'
   'SmStraight'
   'LgStraight'
-  'YAHTZEE'
+  'Yahtzee'
   'Chance'
 )
 
@@ -123,7 +123,7 @@ function Invoke-YahtzeeTurn {
     Write-Host -ForegroundColor Yellow "Turn $TurnNumber of 13"
     Write-Host "Scoreboard:"
     Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-    Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, YAHTZEE, Chance | Format-Table | Out-String )
+    Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
 
     #Clear held property and write die postion and value to console
     Write-Host "Your die:"
@@ -176,7 +176,7 @@ function Invoke-YahtzeeTurn {
   #Write scoreboard to console
   Write-Host "Scoreboard:"
   Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-  Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, YAHTZEE, Chance | Format-Table | Out-String )
+  Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
 
   #Convert roll result to array of values
   $RollResult = $RollResult.value
@@ -206,7 +206,7 @@ function Invoke-YahtzeeTurn {
   else { '0' }
   $SelectScoringTableObject.LgStraight = if ((( -join ($RollResult | Sort-Object -u) -match "12345|23456")) -eq $true ) { '40' }
   else { '0' }
-  $SelectScoringTableObject.YAHTZEE = if ((($RollResult | Group-Object) | Select-Object count) -match '5') { '50' }
+  $SelectScoringTableObject.Yahtzee = if ((($RollResult | Group-Object) | Select-Object count) -match '5') { '50' }
   else { '0' }
   $SelectScoringTableObject.Chance = $RollResult | Measure-Object -sum | Select-Object -ExpandProperty sum
 
@@ -233,7 +233,7 @@ function Invoke-YahtzeeTurn {
   $SelectedScore
 }
 
-#Invoke YAHTZEE round for each scorable item. Increment turn number
+#Invoke Yahtzee round for each scorable item. Increment turn number
 foreach ($item in $ScoreNameArray) {
   $TurnResult = Invoke-YahtzeeTurn 
   $ScoreboardObject.$($TurnResult.Name) = $TurnResult.Value
@@ -246,7 +246,7 @@ Clear-Host
 #Write scoreboard to console
 Write-Host "Scoreboard:"
 Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, YAHTZEE, Chance | Format-Table | Out-String )
+Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
 
 #Sum up top scores
 $TopTotalSum = $ScoreboardObject.Ones + $ScoreboardObject.Twos + $ScoreboardObject.Threes + $ScoreboardObject.Fours + $ScoreboardObject.Fives + $ScoreboardObject.Sixes
@@ -256,7 +256,7 @@ if ($TopTotalSum -ge 63) { $TopBonus = 35 }
 if ($TopTotalSum -lt 63) { $TopBonus = 0 }
 
 #Sum up bottom scores
-$BottomTotalSum = $ScoreboardObject.ThreeofaKind + $ScoreboardObject.FourofaKind + $ScoreboardObject.FullHouse + $ScoreboardObject.SmStraight + $ScoreboardObject.LgStraight + $ScoreboardObject.YAHTZEE + $ScoreboardObject.Chance
+$BottomTotalSum = $ScoreboardObject.ThreeofaKind + $ScoreboardObject.FourofaKind + $ScoreboardObject.FullHouse + $ScoreboardObject.SmStraight + $ScoreboardObject.LgStraight + $ScoreboardObject.Yahtzee + $ScoreboardObject.Chance
 
 #Sum up final score
 $FinalTotal = $TopTotalSum + $BottomTotalSum

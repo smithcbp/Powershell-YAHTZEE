@@ -256,7 +256,7 @@ if ($TopTotalSum -lt 63) { $TopBonus = 0 }
 $BottomTotalSum = $ScoreboardObject.ThreeofaKind + $ScoreboardObject.FourofaKind + $ScoreboardObject.FullHouse + $ScoreboardObject.SmStraight + $ScoreboardObject.LgStraight + $ScoreboardObject.Yahtzee + $ScoreboardObject.Chance
 
 #Sum up final score
-$FinalTotal = $TopTotalSum + $BottomTotalSum
+$FinalTotal = $TopTotalSum + $TopBonus + $BottomTotalSum
 
 #Write Final Results to Console
 Write-Host "Top Total: $TopTotalSum"

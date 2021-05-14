@@ -11,6 +11,18 @@
   Just run YahtzeeGame.ps1 and have fun :)
 #>
 
+#Keep track of high score True/False
+$HighScoreBool = $true
+
+#Create file to store high score
+if($HighScoreBool -eq $true) {
+  $HSPath = "$env:APPDATA\PowershellYahtzeeHighScore.txt"
+  if(!$(Test-Path $HSPath)) { 
+    Set-Content -Path $HSPath -Value '' -Force
+  }
+}
+
+
 #Console Menu Selection Function
 Function Read-Choice {
   [cmdletbinding()]
@@ -263,6 +275,16 @@ Write-Host "Top Total: $TopTotalSum"
 Write-Host "Top Bonus Total: $TopBonus"
 Write-Host "Bottom Total: $BottomTotalSum"
 Write-Host "Total Score: $FinalTotal"
-Write-Host "Good Job.... :)"
+
+#Check for highscorebool. If so, write to console.
+if ($HighScoreBool -eq $true) {
+  [int]$CurrentHighScore = Get-Content $HSPath
+  Write-Host "Current High Score: $CurrentHighScore"
+
+  if ($FinalTotal -gt $CurrentHighScore){
+    Set-Content -Path $HSPath -Value $FinalTotal -Force
+    Write-Host "$FinalTotal is a new high score! Great job!"
+  } 
+}
 
 Pause

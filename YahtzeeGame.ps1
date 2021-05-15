@@ -22,7 +22,6 @@ if($HighScoreBool -eq $true) {
   }
 }
 
-
 #Console Menu Selection Function
 Function Read-Choice {
   [cmdletbinding()]

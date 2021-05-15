@@ -2,7 +2,7 @@
 .SYNOPSIS
   Enjoy an exciting game of Yahtzee!
 .DESCRIPTION
-  Kicks off a game of Yahtzee completely in the console. Currently single player only. Limited to numbers 1-6 and a total of 10 die.
+  Kicks off a game of Yahtzee completely in the console. Currently single player only.
 .NOTES
   Version:        1.0
   Author:         Chris Smith (smithcbp on github)

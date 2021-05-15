@@ -2,7 +2,7 @@
 .SYNOPSIS
   Enjoy an exciting game of Yahtzee!
 .DESCRIPTION
-  Kicks off a game of Yahtzee completely in the console. Currently single player only.
+  Kicks off a game of Yahtzee completely in the console. Currently single player only. Limited to numbers 1-6 and a total of 10 die.
 .NOTES
   Version:        1.0
   Author:         Chris Smith (smithcbp on github)
@@ -15,11 +15,78 @@
 $HighScoreBool = $true
 
 #Create file to store high score
-if($HighScoreBool -eq $true) {
+if ($HighScoreBool -eq $true) {
   $HSPath = "$env:APPDATA\PowershellYahtzeeHighScore.txt"
-  if(!$(Test-Path $HSPath)) { 
+  if (!$(Test-Path $HSPath)) { 
     Set-Content -Path $HSPath -Value '' -Force
   }
+}
+
+#Ascii Dice stuff
+function Get-AsciiDice {
+  Param
+  (
+    [parameter(Mandatory = $true,
+      ParameterSetName = "Random")]
+    [int]$Random,
+    
+    [parameter(Mandatory = $true,
+      ParameterSetName = "Numbers")]
+    $Numbers,
+
+    [parameter(Mandatory = $False)]
+    [ValidateSet("Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White")]
+    [String]$DieColor = "White"
+  )
+
+  if ($random) {
+    $NumberSet = (1..$random | foreach { Get-Random -Maximum 6 -Minimum 1 })
+    $NumberSet = ($NumberSet -join '').ToString().ToCharArray()
+  }
+  if ($Numbers) {
+    $NumberSet = $Numbers.ToString().ToCharArray()
+  }
+
+  $NumberSet | foreach { if ($_ -gt '6') { Write-Error -Message "Only supports digits 1-6" -ErrorAction Stop } }
+  if ($($NumberSet.Count) -gt 10) { Write-Error -Message "Only supports up to 10 die" -ErrorAction Stop }
+
+  $d = [PSCustomObject]@{
+    t1 = '   '
+    m1 = ' o '
+    b1 = '   '
+    t2 = '  o'
+    m2 = '   '
+    b2 = 'o  '
+    t3 = 'o  '
+    m3 = ' o '
+    b3 = '  o'
+    t4 = 'o o'
+    m4 = '   '
+    b4 = 'o o'
+    t5 = 'o o'
+    m5 = ' o '
+    b5 = 'o o'
+    t6 = 'o o'
+    m6 = 'o o'
+    b6 = 'o o'
+  }
+  
+  $DiePicture = foreach ($n in $Numberset) {   
+    $t = 't' + $n
+    $m = 'm' + $n
+    $b = 'b' + $n  
+    Write-Output " ___ "
+    Write-Output "|$($d.$t)|"
+    Write-Output "|$($d.$m)|"
+    Write-Output "|$($d.$b)|"
+    Write-Output " --- "
+  }
+
+  Write-Host -ForegroundColor $DieColor ($DiePicture[0, 5, 10, 15, 20, 25, 30, 35, 40, 45] -join '  ')
+  Write-Host -ForegroundColor $DieColor ($DiePicture[1, 6, 11, 16, 21, 26, 31, 36, 41, 46] -join '  ')
+  Write-Host -ForegroundColor $DieColor ($DiePicture[2, 7, 12, 17, 22, 27, 32, 37, 42, 47] -join '  ')
+  Write-Host -ForegroundColor $DieColor ($DiePicture[3, 8, 13, 18, 23, 28, 33, 38, 43, 48] -join '  ')
+  Write-Host -ForegroundColor $DieColor ($DiePicture[4, 9, 14, 19, 24, 29, 34, 39, 44, 49] -join '  ')
 }
 
 #Console Menu Selection Function
@@ -128,17 +195,21 @@ function Invoke-YahtzeeTurn {
     #Fresh Clean Console
     Clear-Host
     #Write TurnNumbers and Scoreboard to console
-    Write-Host -ForegroundColor Yellow "Turn $TurnNumber of 13"
-    Write-Host "Scoreboard:"
-    Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-    Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
+    #Write-Host -ForegroundColor Yellow "Turn $TurnNumber of 13"
+    Write-Host "~~Scoreboard~~"
+    Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
+    Write-Host "~~~~~~~~~~~~~~"
+    Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
     #Clear held property and write die postion and value to console
-    Write-Host "Your die:"
+    #Write-Host "Your die:"
     foreach ($Die in $RollResult) { 
       $Die.Held = ' '
-      Write-Host -ForegroundColor Green "$($Die.DicePosition).) $($Die.value)" 
+      #Write-Host -ForegroundColor Green "$($Die.DicePosition).) $($Die.value)" 
     }
+    Get-AsciiDice -Numbers ($RollResult.Value -join '') -DieColor Yellow
+    Write-Host "  1      2      3      4      5"
+ 
     
     #Prompt for die selection
     $HoldAnswer = Read-Host "Choose the die you would like to hold (i.e. 123,42,12345)"
@@ -152,9 +223,6 @@ function Invoke-YahtzeeTurn {
         }  
       }
       
-      #Indicate held die.
-      Write-Host "$($Die.DicePosition). $($Die.value) $($Die.Held)"
-      
       #Reroll non-held die
       if ($($Die.Held) -notlike "Hold") {
         $Die.Value = Invoke-DiceRoll -numberofdice 1
@@ -162,6 +230,12 @@ function Invoke-YahtzeeTurn {
         $Die.Value
       }
     }
+    #Indicate held die.
+    #Write-Host "$($Die.DicePosition). $($Die.value) $($Die.Held)"
+    $HeldDieInt = $RollResult | Where-Object Held -Like "Hold" | select value
+    $HeldDieInt = $HeldDieInt.value -join ''
+    Write-Host "Holding:"
+    if ($HeldDieInt) { Get-AsciiDice -Numbers $HeldDieInt -DieColor Yellow }
 
     #Pause showing held result
     Start-Sleep -Seconds 1
@@ -182,10 +256,12 @@ function Invoke-YahtzeeTurn {
   Clear-Host
   
   #Write scoreboard to console
-  Write-Host "Scoreboard:"
-  Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-  Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
+  Write-Host "~~Scoreboard~~"
+  Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
+  Write-Host "~~~~~~~~~~~~~~"
+  Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
+  
   #Convert roll result to array of values
   $RollResult = $RollResult.value
 
@@ -228,15 +304,16 @@ function Invoke-YahtzeeTurn {
 
   #Present Score Selection Menu
   $c = 0
-  Write-Host "Final Roll: $($RollResult -join ',')"
-  Write-Host -ForegroundColor Yellow "Score Choices:"
+  #Write-Host "Final Roll: $($RollResult -join ',')"
+  Get-AsciiDice -Numbers ($RollResult -join '') -DieColor Yellow
+  Write-Host -ForegroundColor Cyan "Choose a score:"
   foreach ($item in $ScoreMenu) {
     $c++
     Write-Host "$c.) $($item.value) $($item.name) "
   }
     
   #Read menu selection, output selected score object.
-  $ScoreChoice = Read-Choice -Options $ScoreMenu.name 
+  $ScoreChoice = Read-Choice -Options $ScoreMenu.name
   $SelectedScore = $ScoreMenu | Where-Object name -Like $ScoreChoice
   $SelectedScore
 }
@@ -252,9 +329,11 @@ foreach ($item in $ScoreNameArray) {
 Clear-Host
 
 #Write scoreboard to console
-Write-Host "Scoreboard:"
-Write-Host ($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-Table | Out-String )
-Write-Host ($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-Table | Out-String )
+Write-Host "~~Scoreboard~~"
+Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
+Write-Host "~~~~~~~~~~~~~~"
+Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
+Write-Host "~~~~~~~~~~~~~~"
 
 #Sum up top scores
 $TopTotalSum = $ScoreboardObject.Ones + $ScoreboardObject.Twos + $ScoreboardObject.Threes + $ScoreboardObject.Fours + $ScoreboardObject.Fives + $ScoreboardObject.Sixes
@@ -273,15 +352,18 @@ $FinalTotal = $TopTotalSum + $TopBonus + $BottomTotalSum
 Write-Host "Top Total: $TopTotalSum"
 Write-Host "Top Bonus Total: $TopBonus"
 Write-Host "Bottom Total: $BottomTotalSum"
+Write-Host "________________"
 Write-Host "Total Score: $FinalTotal"
 
 #Check for highscorebool. If so, write to console.
 if ($HighScoreBool -eq $true) {
   [int]$CurrentHighScore = Get-Content $HSPath
+  Write-Host "~~~~~~~~~~~~~~"
   Write-Host "Current High Score: $CurrentHighScore"
 
-  if ($FinalTotal -gt $CurrentHighScore){
+  if ($FinalTotal -gt $CurrentHighScore) {
     Set-Content -Path $HSPath -Value $FinalTotal -Force
+    Write-Host "~~~~~~~~~~~~~~"
     Write-Host "$FinalTotal is a new high score! Great job!"
   } 
 }

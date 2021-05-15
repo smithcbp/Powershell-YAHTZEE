@@ -3,8 +3,8 @@
   Enjoy an exciting game of Yahtzee!
 .DESCRIPTION
   Kicks off a game of Yahtzee completely in the console. Currently single player only.
+  Now includes ASCII art dice
 .NOTES
-  Version:        1.0
   Author:         Chris Smith (smithcbp on github)
   Creation Date:  5/14/2021
 .EXAMPLE
@@ -24,6 +24,34 @@ if ($HighScoreBool -eq $true) {
 
 #Ascii Dice stuff
 function Get-AsciiDice {
+<#
+.SYNOPSIS
+  Displays ASCII art dice
+.DESCRIPTION
+  Easily create ascii are dice for your powershell games. You can roll them at random, or from a number set. You can change the colors too.
+  Limited to numbers 1-6 and a total of 10 die.
+.NOTES
+  Author: Chris Smith (smithcbp on github)
+.PARAMETER Random
+    Rolls the specified amount of dice at random and displays them in ascii art. 
+.PARAMETER Numbers
+    Display the specified numbers, 1-6 in ascii art.
+.PARAMETER color
+    Choose the color of your die. Default is white
+.EXAMPLE
+Get-AsciiDice -Numbers 123456 -color Gray
+ ___    ___    ___    ___    ___    ___ 
+|   |  |  o|  |o  |  |o o|  |o o|  |o o|
+| o |  |   |  | o |  |   |  | o |  |o o|
+|   |  |o  |  |  o|  |o o|  |o o|  |o o|
+ ---    ---    ---    ---    ---    ---
+Get-AsciiDice -Random 3
+ ___    ___    ___ 
+|  o|  |o o|  |o o|
+|   |  | o |  |   |
+|o  |  |o o|  |o o|
+ ---    ---    --- 
+#>
   Param
   (
     [parameter(Mandatory = $true,

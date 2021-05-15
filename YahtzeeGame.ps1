@@ -152,7 +152,7 @@ function Invoke-YahtzeeTurn {
         }  
       }
       
-      #Indicate held die for 1 sec.
+      #Indicate held die.
       Write-Host "$($Die.DicePosition). $($Die.value) $($Die.Held)"
       
       #Reroll non-held die

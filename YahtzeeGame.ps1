@@ -1,82 +1,55 @@
 ﻿<#
 .SYNOPSIS
-  Enjoy an exciting game of Yahtzee!
+  Yahzee Game completely in PowerShell
 .DESCRIPTION
   Kicks off a game of Yahtzee completely in the console. Currently single player only.
   Now includes ASCII art dice
 .NOTES
   Author:         Chris Smith (smithcbp on github)
   Creation Date:  5/14/2021
+  Todos:
+    -Triple Yahtzee
+    -WPF GUI
+    -Multiplayer
 .EXAMPLE
   Just run YahtzeeGame.ps1 and have fun :)
 #>
 
-#Keep track of high score True/False
-$HighScoreBool = $true
+#Keep track of scores boolean. Will write a score file to appata if $true. 
+$ScoreBool = $true
 
-#Create file to store high score
-if ($HighScoreBool -eq $true) {
-  $HSPath = "$env:APPDATA\PowershellYahtzeeHighScore.txt"
-  if (!$(Test-Path $HSPath)) { 
-    Set-Content -Path $HSPath -Value '' -Force
+#Create file to store scores
+if ($ScoreBool -eq $true) {
+  $ScoresPath = "$env:APPDATA\PowershellYahtzeeHighScore.txt"
+  if (!$(Test-Path $ScoresPath)) { 
+    Set-Content -Path $ScoresPath -Value '' -Force
   }
 }
 
-#Ascii Dice stuff
-<#
-.SYNOPSIS
-  Displays ASCII art dice
-.DESCRIPTION
-  Easily create ascii are dice for your powershell games. You can roll them at random, or from a number set. You can change the colors too.
-  Limited to numbers 1-6 and a total of 10 die.
-  .NOTES
-  Author: Chris Smith (smithcbp on github)
-.PARAMETER Random
-    Rolls the specified amount of dice at random and displays them in ascii art. 
-.PARAMETER Numbers
-    Display the specified numbers, 1-6 in ascii art.
-.PARAMETER color
-    Choose the color of your die. Default is white
-.EXAMPLE
-Get-AsciiDice -Numbers 12345
- _____    _____    _____    _____    _____ 
-|     |  |    o|  |o    |  |o   o|  |o   o|
-|  o  |  |     |  |  o  |  |     |  |  o  |
-|     |  |o    |  |    o|  |o   o|  |o   o|
- -----    -----    -----    -----    ----- 
-Get-AsciiDice -Random 3
- _____    _____    _____ 
-| o   |  |   o |  |o   o|
-|  o  |  |     |  |     |
-|   o |  | o   |  |o   o|
- -----    -----    ----- 
-#>
-
+#Ascii dice function
 function Get-AsciiDice {
   Param
 (
     [parameter(Mandatory=$true,
     ParameterSetName="Random")]
     [int]$Random,
-    
     [parameter(Mandatory=$true,
     ParameterSetName="Numbers")]
     $Numbers,
-
     [parameter(Mandatory=$False)]
     [ValidateSet("Black","DarkBlue","DarkGreen","DarkCyan","DarkRed","DarkMagenta","DarkYellow","Gray","DarkGray","Blue","Green","Cyan","Red","Magenta","Yellow","White")]
     [String]$DieColor = "White"
   )
 
   if ($random) {
-      $NumberSet = (1..$random | foreach {Get-Random -Minimum 1 -Maximum 7})
+      $NumberSet = (1..$random | ForEach-Object {Get-Random -Minimum 1 -Maximum 7})
       $NumberSet = ($NumberSet -join '').ToString().ToCharArray()
   }
   if ($Numbers) {
       $NumberSet = $Numbers.ToString().ToCharArray()
   }
 
- $NumberSet | foreach { if ($_ -gt '6'){Write-Error -Message "Only supports digits 1-6" -ErrorAction Stop} }
+ $NumberSet | ForEach-Object { if ($_ -gt '6'){Write-Error -Message "Only supports digits 1-6" -ErrorAction Stop} }
  if ($($NumberSet.Count) -gt 10){Write-Error -Message "Only supports up to 10 die" -ErrorAction Stop}
 
   $d = [PSCustomObject]@{
@@ -118,7 +91,7 @@ Write-Host -ForegroundColor $DieColor ($DiePicture[3,8,13,18,23,28,33,38,43,48] 
 Write-Host -ForegroundColor $DieColor ($DiePicture[4,9,14,19,24,29,34,39,44,49] -join '  ')
 }
 
-#Console Menu Selection Function
+#Menu Function
 Function Read-Choice {
   [cmdletbinding()]
   param(
@@ -216,32 +189,27 @@ function Invoke-YahtzeeTurn {
     #$Die | Add-Member -MemberType NoteProperty -name "DicePosition" -Value ([char](64 + $i)) -Force  #Select die with letter instead of number
     $Die | Add-Member -MemberType NoteProperty -name "Held" -Value " " -Force
     $Die | Add-Member -MemberType NoteProperty -name "Value" -Value (Invoke-DiceRoll -numberofdice 1) -Force
-    #$Die | Add-Member -MemberType NoteProperty -name "Icon" -Value (Invoke-DiceRoll -numberofdice 1) -Force #might be used to add 
   }
 
   #Roll only 2 more times after initial
   $RollResult = While ($NumberOfRolls -le 2) {
-    #Fresh Clean Console
+    
+    #Display Scoreboard
     Clear-Host
-    #Write TurnNumbers and Scoreboard to console
-    #Write-Host -ForegroundColor Yellow "Turn $TurnNumber of 13"
-    Write-Host "~~Scoreboard~~"
+    Write-Host "~~~~Scoreboard~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
     Write-Host "~~~~~~~~~~~~~~~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
-    #Clear held property and write die postion and value to console
-    #Write-Host "Your die:"
-    foreach ($Die in $RollResult) { 
-      $Die.Held = ' '
-      #Write-Host -ForegroundColor Green "$($Die.DicePosition).) $($Die.value)" 
-    }
+    #Clear held property
+    foreach ($Die in $RollResult) { $Die.Held = ' '}
+    
+    #Draw die and selection
     Get-AsciiDice -Numbers ($RollResult.Value -join '') -DieColor Yellow
     Write-Host "   1        2        3        4        5"
  
-    
     #Prompt for die selection
-    $HoldAnswer = Read-Host "Choose the die you would like to hold (i.e. 123,42,12345)"
+    $HoldAnswer = Read-Host "Enter die to hold or leave blank (ex. 123)"   
     $HoldAnswer = $HoldAnswer.ToCharArray()
 
     #Modify die object with held property
@@ -259,38 +227,29 @@ function Invoke-YahtzeeTurn {
         $Die.Value
       }
     }
-    #Indicate held die.
-    #Write-Host "$($Die.DicePosition). $($Die.value) $($Die.Held)"
-    $HeldDieInt = $RollResult | Where-Object Held -Like "Hold" | select value
+    
+    #Indicate held die and pause
+    $HeldDieInt = $RollResult | Where-Object Held -Like "Hold" | Select-Object value
     $HeldDieInt = $HeldDieInt.value -join ''
     Write-Host "Holding:"
     if ($HeldDieInt) { Get-AsciiDice -Numbers $HeldDieInt -DieColor Yellow }
-
-    #Pause showing held result
     Start-Sleep -Seconds 1
     
     #Check if all 5 die held and end turn
-    if ($($HoldAnswer.count) -eq 5) { 
-      $NumberOfRolls = 2
-    }
-
-    #Increment number of rolls
+    if ($($HoldAnswer.count) -eq 5) { $NumberOfRolls = 2 }
+    
+    #Increment number of rolls and output final roll result after 3 rolls
     $NumberOfRolls++
-
-    #Output final roll result after 3 rolls
     if ($NumberOfRolls -ge 3) { $RollResult }
   }
 
-  #Fresh clean console
+  #Display scoreboard
   Clear-Host
-  
-  #Write scoreboard to console
-  Write-Host "~~Scoreboard~~"
+  Write-Host "~~~~Scoreboard~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
   Write-Host "~~~~~~~~~~~~~~~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
-  
   #Convert roll result to array of values
   $RollResult = $RollResult.value
 
@@ -326,14 +285,11 @@ function Invoke-YahtzeeTurn {
   #Build Score Selection Menu
   $ScoreMenu = $SelectScoringTableObject.psobject.Properties | Select-Object Name, Value 
   $ScoreMenu = foreach ($item in $ScoreMenu) {
-    if ($($ScoreboardObject.$($item.name)) -like '') {
-      $item
-    }             
+    if ($($ScoreboardObject.$($item.name)) -like '') { $item }             
   }
 
   #Present Score Selection Menu
   $c = 0
-  #Write-Host "Final Roll: $($RollResult -join ',')"
   Get-AsciiDice -Numbers ($RollResult -join '') -DieColor Yellow
   Write-Host -ForegroundColor Cyan "Choose a score:"
   foreach ($item in $ScoreMenu) {
@@ -342,7 +298,7 @@ function Invoke-YahtzeeTurn {
   }
     
   #Read menu selection, output selected score object.
-  $ScoreChoice = Read-Choice -Options $ScoreMenu.name
+  $ScoreChoice = Read-Choice -Options $ScoreMenu.name 
   $SelectedScore = $ScoreMenu | Where-Object name -Like $ScoreChoice
   $SelectedScore
 }
@@ -358,7 +314,7 @@ foreach ($item in $ScoreNameArray) {
 Clear-Host
 
 #Write scoreboard to console
-Write-Host "~~Scoreboard~~"
+Write-Host "~~~~Scoreboard~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
 Write-Host "~~~~~~~~~~~~~~~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
@@ -378,23 +334,30 @@ $BottomTotalSum = $ScoreboardObject.ThreeofaKind + $ScoreboardObject.FourofaKind
 $FinalTotal = $TopTotalSum + $TopBonus + $BottomTotalSum
 
 #Write Final Results to Console
-Write-Host "Top Total:     $TopTotalSum"
-Write-Host "Top Bonus:     $TopBonus"
-Write-Host "Bottom Total:  $BottomTotalSum"
-Write-Host "__________________"
-Write-Host "Total Score:   $FinalTotal"
+Write-Host "Top Total    : $TopTotalSum"
+Write-Host "Top Bonus    : $TopBonus"
+Write-Host "Bottom Total : $BottomTotalSum"
+Write-Host "~~~~~~~~~~~~~~~~~~"
+Write-Host "Total Score  : $FinalTotal"
 
 #Check for highscorebool. If so, write to console.
-if ($HighScoreBool -eq $true) {
-  [int]$CurrentHighScore = Get-Content $HSPath
+if ($ScoreBool -eq $true) {
+  Add-Content -Path $ScoresPath "$FinalTotal"
+  $ScoreContent = Get-Content $ScoresPath
+  $GamesPlayed = $ScoreContent.count
+  $AverageScore = ($ScoreContent | Measure-Object -Average).Average
+  $HighScore = ($ScoreContent | Measure-Object -Maximum).Maximum
+  $LowestScore = ($ScoreContent | Measure-Object -Minimum).Minimum
   Write-Host "~~~~~~~~~~~~~~~~~~"
-  Write-Host "Current High Score: $CurrentHighScore"
+  Write-Host "Highest Score: $HighScore"
+  Write-Host "Average Score: $AverageScore"
+  Write-Host " Lowest Score: $LowestScore"
+  Write-Host " Games Played: $GamesPlayed "
 
-  if ($FinalTotal -gt $CurrentHighScore) {
-    Set-Content -Path $HSPath -Value $FinalTotal -Force
+  if ($FinalTotal -gt $HighScore) {
     Write-Host "~~~~~~~~~~~~~~~~~~"
     Write-Host "$FinalTotal is a new high score! Great job!"
   } 
 }
-
+Write-Host " "
 Pause

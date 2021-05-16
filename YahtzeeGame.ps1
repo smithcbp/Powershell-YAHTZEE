@@ -69,7 +69,7 @@ function Get-AsciiDice {
   )
 
   if ($random) {
-      $NumberSet = (1..$random | foreach {Get-Random -Maximum 6 -Minimum 1})
+      $NumberSet = (1..$random | foreach {Get-Random -Minimum 1 -Maximum 7})
       $NumberSet = ($NumberSet -join '').ToString().ToCharArray()
   }
   if ($Numbers) {
@@ -227,7 +227,7 @@ function Invoke-YahtzeeTurn {
     #Write-Host -ForegroundColor Yellow "Turn $TurnNumber of 13"
     Write-Host "~~Scoreboard~~"
     Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
-    Write-Host "~~~~~~~~~~~~~~"
+    Write-Host "~~~~~~~~~~~~~~~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
     #Clear held property and write die postion and value to console
@@ -287,7 +287,7 @@ function Invoke-YahtzeeTurn {
   #Write scoreboard to console
   Write-Host "~~Scoreboard~~"
   Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
-  Write-Host "~~~~~~~~~~~~~~"
+  Write-Host "~~~~~~~~~~~~~~~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
 
   
@@ -360,9 +360,9 @@ Clear-Host
 #Write scoreboard to console
 Write-Host "~~Scoreboard~~"
 Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
-Write-Host "~~~~~~~~~~~~~~"
+Write-Host "~~~~~~~~~~~~~~~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
-Write-Host "~~~~~~~~~~~~~~"
+Write-Host "~~~~~~~~~~~~~~~~~~"
 
 #Sum up top scores
 $TopTotalSum = $ScoreboardObject.Ones + $ScoreboardObject.Twos + $ScoreboardObject.Threes + $ScoreboardObject.Fours + $ScoreboardObject.Fives + $ScoreboardObject.Sixes
@@ -378,21 +378,21 @@ $BottomTotalSum = $ScoreboardObject.ThreeofaKind + $ScoreboardObject.FourofaKind
 $FinalTotal = $TopTotalSum + $TopBonus + $BottomTotalSum
 
 #Write Final Results to Console
-Write-Host "Top Total: $TopTotalSum"
-Write-Host "Top Bonus Total: $TopBonus"
-Write-Host "Bottom Total: $BottomTotalSum"
-Write-Host "________________"
-Write-Host "Total Score: $FinalTotal"
+Write-Host "Top Total:     $TopTotalSum"
+Write-Host "Top Bonus:     $TopBonus"
+Write-Host "Bottom Total:  $BottomTotalSum"
+Write-Host "__________________"
+Write-Host "Total Score:   $FinalTotal"
 
 #Check for highscorebool. If so, write to console.
 if ($HighScoreBool -eq $true) {
   [int]$CurrentHighScore = Get-Content $HSPath
-  Write-Host "~~~~~~~~~~~~~~"
+  Write-Host "~~~~~~~~~~~~~~~~~~"
   Write-Host "Current High Score: $CurrentHighScore"
 
   if ($FinalTotal -gt $CurrentHighScore) {
     Set-Content -Path $HSPath -Value $FinalTotal -Force
-    Write-Host "~~~~~~~~~~~~~~"
+    Write-Host "~~~~~~~~~~~~~~~~~~"
     Write-Host "$FinalTotal is a new high score! Great job!"
   } 
 }

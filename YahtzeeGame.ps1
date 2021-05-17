@@ -272,7 +272,7 @@ function Invoke-YahtzeeTurn {
   else { '0' }
   $SelectScoringTableObject.FourofaKind = if (((($RollResult | Group-Object) | Select-Object -expand count) -ge 4)) { $RollResult | Measure-Object -sum | Select-Object -ExpandProperty sum }
   else { '0' }
-  $SelectScoringTableObject.FullHouse = if (((($RollResult | Group-Object) | Select-Object count) -match '3') -and ((($RollResult | Group-Object) | Select-Object count) -match '2')) { '35' }
+  $SelectScoringTableObject.FullHouse = if (((($RollResult | Group-Object) | Select-Object count) -match '3') -and ((($RollResult | Group-Object) | Select-Object count) -match '2')) { '25' }
   else { '0' }
   $SelectScoringTableObject.SmStraight = if ((( -join ($RollResult | Sort-Object -u) -match "1234|2345|3456|12345|23456")) -eq $true ) { '30' }
   else { '0' }

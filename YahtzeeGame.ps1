@@ -202,7 +202,7 @@ function Invoke-YahtzeeTurn {
     #Display Scoreboard
     Clear-Host
     Write-Host -ForegroundColor Blue "$title"
-    Write-Host "~~~~Scoreboard~~~~"
+    Write-Host "~~~~Score Card~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
     Write-Host "~~~~~~~~~~~~~~~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
@@ -252,7 +252,7 @@ function Invoke-YahtzeeTurn {
   #Display scoreboard
   Clear-Host
   Write-Host -ForegroundColor Blue "$title"
-  Write-Host "~~~~Scoreboard~~~~"
+  Write-Host "~~~~Score Card~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
   Write-Host "~~~~~~~~~~~~~~~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"
@@ -322,7 +322,7 @@ Clear-Host
 
 #Write scoreboard to console
 Write-Host -ForegroundColor Blue "$title"
-Write-Host "~~~~Scoreboard~~~~"
+Write-Host "~~~~Score Card~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
 Write-Host "~~~~~~~~~~~~~~~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object ThreeofaKind, FourofaKind, FullHouse, SmStraight, LgStraight, Yahtzee, Chance | Format-List | Out-String ).trim())"

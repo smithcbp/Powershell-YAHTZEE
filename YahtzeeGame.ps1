@@ -15,6 +15,11 @@
   Just run YahtzeeGame.ps1 and have fun :)
 #>
 
+$title = '
+\ /                  
+ Y  _ |_ _|_ _  _  _ 
+ | (_|| | |_ /_(/_(/_'
+
 #Keep track of scores boolean. Will write a score file to appata if $true. 
 $ScoreBool = $true
 
@@ -196,6 +201,7 @@ function Invoke-YahtzeeTurn {
     
     #Display Scoreboard
     Clear-Host
+    Write-Host -ForegroundColor Blue "$title"
     Write-Host "~~~~Scoreboard~~~~"
     Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
     Write-Host "~~~~~~~~~~~~~~~~~~"
@@ -245,6 +251,7 @@ function Invoke-YahtzeeTurn {
 
   #Display scoreboard
   Clear-Host
+  Write-Host -ForegroundColor Blue "$title"
   Write-Host "~~~~Scoreboard~~~~"
   Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
   Write-Host "~~~~~~~~~~~~~~~~~~"
@@ -314,6 +321,7 @@ foreach ($item in $ScoreNameArray) {
 Clear-Host
 
 #Write scoreboard to console
+Write-Host -ForegroundColor Blue "$title"
 Write-Host "~~~~Scoreboard~~~~"
 Write-Host "$($($ScoreboardObject | Select-Object Ones, Twos, Threes, Fours, Fives, Sixes | Format-List | Out-String ).trim())" 
 Write-Host "~~~~~~~~~~~~~~~~~~"
